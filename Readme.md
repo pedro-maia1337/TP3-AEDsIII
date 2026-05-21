@@ -115,6 +115,6 @@ Foram mantidas as classes do TP1 com a adição de novas estruturas para lidar c
 **Comandos de Compilação:**
 
 ```bash
-javac -cp .;aed3/ -d out/ src/**/*.java src/Main.java
-java  -cp out/;aed3/ Main
+javac -d bin src/arquivo/*.java src/auxiliares/*.java src/entidades/*.java src/visao/*.java src/Main.java
+java -cp bin Main
 ```

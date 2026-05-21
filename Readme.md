@@ -110,7 +110,7 @@ Foram mantidas as classes do TP1 com a adição de novas estruturas para lidar c
 
 ---
 
-**Vídeo de Demonstração:** // tem que colocar o link aqui do vídeo
+**Vídeo de Demonstração:** https://youtu.be/e27_ES4kZIY
 
 **Comandos de Compilação:**
 

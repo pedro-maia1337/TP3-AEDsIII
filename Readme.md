@@ -1,109 +1,112 @@
-AEDs III - TP01
-Participantes: Pedro Henrique Cardoso Maia, Gabriel Egídio Santos Beloni, Gabriel Evangelista Massara, Thiago Aurélio Nunes Martins
+# AEDs III - TP02
 
-Descrição do TP:
+**Participantes:** Pedro Henrique Cardoso Maia, Gabriel Egídio Santos Beloni, Gabriel Evangelista Massara, Thiago Aurélio Nunes Martins
 
-Oque o Sistema faz?
-    
-O EntrePares 1.0, armazena os dadps e registros em arquivos .db de maneira randômica usando o RandomAcessFile. Além disso, o sistema reaproveita os espaços de registros excluídos através do uso de lápide e encadeamento. O mesmo usa também Tabelas Hash para as buscas diretas (Id, email, código do curso) e as árvores B+ para os indíces indiretos.
+---
 
-    Classes do Trabalho
+## Descrição do TP
 
-        /entidades
-    Usuario.java - Define o modelo de dados do usuario, incluindo os atributos sejam eles email, nome a hash para a senha e a pergunta de segurança. Usa-se toByteArray() e fromByteArray() para a serialização e desserialização do objeto para o banco de dados.
-    Curso.java - Define a entidade curso contendo a chave idUsuario quie estabelece o relacionamento com o criador. E gera o código padrão NanoID.
+**O que o Sistema faz?**
+Nesta segunda etapa, o EntrePares 1.0 expande sua base de dados randômica (`.db`) para suportar a funcionalidade de **Inscrições**. O sistema agora gerencia um relacionamento N:N entre Usuários e Cursos através da nova entidade de associação `Inscricao`. Além do uso contínuo de Tabelas Hash Extensíveis e lápides para reaproveitamento de espaço, o projeto utiliza intensamente as Árvores B+ para indexação bidirecional (Cursos <-> Usuários). Foram implementadas buscas otimizadas por código (NanoID), paginação na listagem de cursos disponíveis, visualização detalhada e exportação de inscritos no formato CSV.
 
-        /arquivo
-    ArquivoUsuario.java - CRUD para a entidade Usuario, além de gerenciar o indice indireto baseado na Tabela Hash (EmailToID) oque garante unicidade.
-    ArquivoCurso.java - CRUD para a entidade Curso, que gerencia um Hash e duas árvores B+ (uma por idUsuario e a outra para ordenar de maneira alfabética por nome)
-    EmailToID.java - Define a estrutura entre o email e o id do usuario, oque permite o login e garante que o email é único pela Tabela Hash
-    CodigoToID.java - Define a ligação entre NanoID e o seu id, permitindo a verificação de unicidade.
+---
 
-        /auxiliares
-    Arquivo.java - Implementa o gestor de CRUD, o qual é a base do sistema. O mesmo gerencia o acesso ao .db, o controle de registros ao quais foram excluidos (marcados pela lápide), e indice direto (ID)
-    ParUsuarioIdCursoId.java - Define a estrutura de nó da árvore B+
-    ParIDEndereco.java - Define o par básico de indexação direta
-    ParNomeIdCurso.java- Define a estrutura de nó da árvore B+
-    OBS: Usamos as classes fornecidas e apresentadas em sala, as quais foram integradas no projeto e se encontram em auxiliares, como a HashExtensivel.java, ArvoreBMais.java, RegistroHashExtensivel.java e InterfaceArvoreBMais.java.
+## Classes do Trabalho
 
-        /visao
-    MenuUsarios.java - Responsável pelo login e gerenciamento de conta, além de aplicar a verificação de integridade que impede o delete da conta caso o usuário tenha algum curso ativo no momento da tentativa de exclusão
-    ControleCurso.java - Tal classe é a responsável pela lógica de navegação e as operações entre os cursos (criar, mudar, encerrar e mais opções)
-    VisaoCurso.java - Centraliza as funções de entrada e saída de cursos para o usuario.
+Foram mantidas as classes do TP1 com a adição de novas estruturas para lidar com o relacionamento N:N e as inscrições.
 
-Prints do projeto:
-    Interface/Execução
+### `/entidades`
+*   **Usuario.java**: Define o modelo do usuário. Usa `toByteArray()` e `fromByteArray()` para serialização.
+*   **Curso.java**: Entidade de curso contendo o id do criador e o código gerado em NanoID.
+*   **Inscricao.java** *(Novo)*: Entidade de associação que concretiza o relacionamento N:N. Contém `id` próprio, `idCurso` (chave estrangeira), `idUsuario` (chave estrangeira) e o estado da inscrição (ativa ou cancelada).
 
-1-
+### `/arquivo`
+*   **ArquivoUsuario.java**: CRUD para Usuário com índice indireto baseado em Tabela Hash (EmailToID).
+*   **ArquivoCurso.java**: CRUD para Curso gerenciando Hash e Árvores B+ para ordenação e relacionamento 1:N.
+*   **ArquivoInscricao.java** *(Novo)*: CRUD da entidade de associação. Mantém e atualiza duas Árvores B+ essenciais: `indiceUsuarioInscricao` e `indiceCursoInscricao`.
+*   **EmailToID.java** / **CodigoToID.java**: Tabelas Hash que garantem unicidade de emails e códigos NanoID.
 
-![Cadastro](docs/cadastro.png)
+### `/auxiliares`
+*   **Arquivo.java**: Base do CRUD, controle de exclusão (lápide) e reaproveitamento de registros.
+*   **Teclado.java** *(Novo)*: Centraliza a leitura do `System.in` para evitar conflitos de Scanner.
+*   **ParCursoIdInscricaoId.java** *(Novo)*: Define o par de chave/valor para a Árvore B+ que permite buscar as inscrições (alunos) de um curso específico.
+*   **ParUsuarioIdInscricaoId.java** *(Novo)*: Define o par de chave/valor para a Árvore B+ que permite buscar as inscrições ativas (cursos) de um usuário específico.
+*   *(Demais pares do TP1 mantidos, como `ParNomeIdCurso`, e as classes `ArvoreBMais`, `HashExtensivel`, etc.)*
 
-*Cadastro de um novo usuário do sistema*
+### `/visao`
+*   **MenuUsuarios.java**: Login e gerenciamento de conta, verificando integridade de exclusão.
+*   **ControleCurso.java**: Navegação e operações de "Meus Cursos", agora incluindo a opção de exportar a lista de inscritos em `.csv`.
+*   **ControleInscricao.java** *(Novo)*: Centraliza as buscas de curso por palavra-chave e NanoID, a listagem paginada de cursos disponíveis e a gestão das próprias inscrições do usuário logado.
 
-2-
+---
 
-![NovoCurso](docs/createCurso.png)
-
-*Criação de um novo curso no sistema*
-
-3-
-
-![DadosCurso](docs/dadosCursos.png)
-
-*Interface de dados sobre o curso cadastrado no sistema*
-
-4-
-
-![Ordenacao](docs/ordenacao.png)
-
-*Vários cursos cadastrados, os quais são ordenados pela árvore B+ de maneira alfabética*
-
-5-
-
-![Delete](docs/delete.png)
-
-*Tentativa de deletar a conta com cursos ativos, o qual o sistema não permite*
+## Prints do Projeto: Interface e Execução
 
 
-Código
-    (Operações Especiais Implementadas)
-1-
+1.  **Busca de Curso por NanoID**
+    ![Busca NanoID](docs/buscaNanoId.png)
+    *Tela exibindo os dados de um curso retornado após a busca pelo seu código exclusivo.*
 
-![1N](docs/1paraN.png)
+2.  **Lista de Cursos e Paginação**
+    ![Paginacao](docs/paginacao.png)
+    *Listagem de cursos ordenada por data de início, com paginação funcional.*
 
-*Usa-se a classe ParUsuarioIdCursoId como chave de uma árvore dentro da classe ArquivoCurso. Permitindo que o sistema consiga os cursos de um usuario específico sem ter que ler o arquivo inteiro*
+3.  **Gestão das Próprias Inscrições**
+    ![Minhas Inscricoes](docs/minhasInscricoes.png)
+    *Visão de um curso em que o usuário está matriculado, com a opção ativa para "Cancelar minha inscrição no curso".*
 
-2-
+4.  **Gestão de Inscritos e Exportação CSV**
+    ![Exportar CSV](docs/exportarCsv.png)
+    *Visão do criador do curso, listando os alunos matriculados e exportando o arquivo `inscritos_[NanoID].csv`.*
 
-![NanoID](docs/nanoID.png)
+---
 
-*Tal operação garante que dois cursos nunca tenham o mesmo código (são únicos), tal garantia é feita através da verificação da tabela Hash para ver se o código já existe, caso true, cancela.*
-        
-3-
+## Código: Operações Especiais Implementadas
 
-![DeleteUsuario](docs/deleteUser.png)
+1.  **Relacionamento N:N e Dupla Indexação (Árvore B+)**
+    *A classe `ArquivoInscricao` grava simultaneamente em duas Árvores B+ distintas. Isso elimina a necessidade de varrer o arquivo `.db` linearmente: usamos `indiceUsuarioInscricao` para as inscrições do aluno e `indiceCursoInscricao` para ver os alunos do curso.*
 
-*Tal especialidade verifica se há cursos com '0' ou '1', caso tenha, o sistema não permite a exclusão da conta, visto que é uma regra do sistema, caso o usuário tenha apenas cursos inativos, os sistema realiza a exclusão em cascata*
+2.  **Integridade de Dados e Exclusão Lógica**
+    *Foi implementada uma lógica de exclusão em cascata: ao deletar um curso, o método `cancelarInscricoesPorCurso` inativa as inscrições daquele curso. O mesmo ocorre ao excluir a conta de um usuário (apenas permitido caso ele não tenha cursos que ele próprio criou ativos).*
 
+3.  **Exportação CSV Integrada**
+    *Implementada no método `exportarListaCSV`, a função cruza os dados extraídos das inscrições com os dados do Arquivo de Usuários, escrevendo "Nome,Email,Data" diretamente na raiz do projeto, nomeado pelo NanoID do curso.*
 
-    CheckList:
-    1- Há um CRUD de usuários (que estende a classe ArquivoIndexado, acrescentando Tabelas Hash Extensíveis e Árvores B+ como índices diretos e indiretos conforme necessidade) que funciona corretamente? Sim. A classe ArquivoUsuario estende a base do CRUD e tem a tabela hash implemntada para busca por email.
-    2- Há um CRUD de cursos (que estende a classe ArquivoIndexado, acrescentando Tabelas Hash Extensíveis e Árvores B+ como índices diretos e indiretos conforme necessidade) que funciona corretamente? Sim. A Classe ArquivoCurso faz a instancia e o uso do arquivo e os métodos de Crud os quais tão ligados a Curso
-    3- Os cursos estão vinculados aos usuários usando o idUsuario como chave estrangeira? Sim. Curso possui idUsuário, o qual é lido e gravado por toByteArray e o relacionamento é estabelecido na criação do metodo leCurso
-    4- Há uma árvore B+ que registre o relacionamento 1:N entre usuários e cursos? Sim. Foi implementada em ParUsuarioIdCursoId usando a InterfaceArvoreBMais
-    5- Há um CRUD de usuários (que estende a classe ArquivoIndexado, acrescentando Tabelas Hash Extensíveis e Árvores B+ como índices diretos e indiretos conforme necessidade)? Sim. A classe ArquivoUsuario estende a base do CRUD e tem a tabela hash implemntada para busca por email. (Pergunta repetida na 1)
-    6- O trabalho compila corretamente? Sim. O código e a estrutura dos arquivos está coerente com a linguagem Java e é compilado sem erros.
-    7- O trabalho está completo e funcionando sem erros de execução? Sim. Foram implementadas todas as funcionalidades solicitadas.
-    8- O trabalho é original e não a cópia de um trabalho de outro grupo? Sim.
+---
 
+## CheckList de Avaliação
 
-Vídeo de Demonstração: https://youtu.be/Zv_o0GNqIkE
+*   **Há um CRUD da entidade de associação CursoUsuario (que estende a classe ArquivoIndexado, acrescentando Tabelas Hash Extensíveis e Árvores B+ como índices diretos e indiretos conforme necessidade) que funciona corretamente?**
+    **Sim.** O CRUD foi implementado na classe `ArquivoInscricao`, responsável por inserir, ler, atualizar e excluir inscrições. A classe gerencia simultaneamente duas Árvores B+ para buscas bidirecionais (Usuario -> Inscricao e Curso -> Inscricao).
 
+*   **A visão de inscrições está corretamente implementada e permite consultas aos cursos em que um usuário está inscrito?**
+    **Sim.** Em `ControleInscricao`, o sistema navega pela Árvore B+ vinculada ao usuário atual (`readByUsuario`), resgata os IDs e exibe apenas os cursos matriculados com a opção de cancelamento.
 
-Comandos de Compilação:
+*   **A visão de cursos funciona corretamente e permite a gestão dos usuários inscritos em um curso?**
+    **Sim.** No `ControleCurso`, o dono do curso acessa a lista de alunos matriculados, podendo verificar detalhes do aluno, cancelar inscrições individuais ou exportar a listagem em CSV.
 
+*   **Há uma visualização dos cursos de outras pessoas por meio de um código NanoID?**
+    **Sim.** Utilizando a tabela de códigos, o usuário insere o NanoID e é levado para a visualização dos detalhes (em `VisaoCurso.mostraCursoInscricao`), habilitando a matrícula.
+
+*   **A integridade do relacionamento entre cursos e usuários está mantida em todas as operações?**
+    **Sim.** As operações garantem que se um curso for cancelado ou o usuário deletar a conta, as conexões no arquivo `Inscricoes` recebem o estado "Cancelada", preservando a integridade.
+
+*   **O trabalho compila corretamente?**
+    **Sim.** O código, as pastas e os pacotes estão estruturados de forma coerente e compilam via `javac` sem acusar erros.
+
+*   **O trabalho está completo e funcionando sem erros de execução?**
+    **Sim.** O ciclo completo de criação, relacionamento N:N e listagens foi testado no terminal.
+
+*   **O trabalho é original e não a cópia de um trabalho de outro grupo?**
+    **Sim.** O trabalho foi redigido e codificado pelo grupo listado no cabeçalho.
+
+---
+
+**Vídeo de Demonstração:** // tem que colocar o link aqui do vídeo
+
+**Comandos de Compilação:**
+
+```bash
 javac -cp .;aed3/ -d out/ src/**/*.java src/Main.java
-
 java  -cp out/;aed3/ Main
-
-
+```

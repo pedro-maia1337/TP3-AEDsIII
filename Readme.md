@@ -129,7 +129,7 @@ Por fim, os cursos são ordenados da maior para a menor pontuação e apresentad
 Link do vídeo:
 
 ```text
-https
+https://www.youtube.com/watch?v=lkaWXBkhmd0
 ```
 
 ---
